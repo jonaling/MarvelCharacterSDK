@@ -9,5 +9,5 @@ import lombok.ToString;
 @ToString
 public class Thumbnail {
 	public String path;
-    public String extension;
+	public String extension;
 }

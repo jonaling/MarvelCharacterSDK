@@ -4,13 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum OrderByEnum {
-	nameAsc("name"),
-	modifiedAsc("modified"),
-	nameDsc("-name"),
-	modifiedDsc("-modified");
-	
+	nameAsc("name"), modifiedAsc("modified"), nameDsc("-name"), modifiedDsc("-modified");
+
 	private final String orderByEnum;
-	
+
 	OrderByEnum(String orderByEnum) {
 		this.orderByEnum = orderByEnum;
 	}
