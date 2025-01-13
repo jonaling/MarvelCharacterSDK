@@ -40,14 +40,16 @@ class CharacterServiceTest {
     @Test
     void testGetCharacterDetails_ValidRequest_Success() {
         // Arrange
-    	CharactersRequest request = new CharactersRequest.Builder("yourApiKey", "yourPrivateKey")
+    	CharactersRequest request =  new CharactersRequest.Builder("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
                 .orderBy(OrderByEnum.nameAsc) 
                 .limit(10)
                 .offset(0)
                 .build();
 
         CharactersResponse expectedResponse = new CharactersResponse(); // Populate with expected data
-        String url = String.format("%s/characters?apikey=%s", marvelApiUrl, request.getApiKey());
+        String url = String.format("%s/characters?apikey=%s&hash=%s&tn=%s",
+        		marvelApiUrl, request.getApiKey(), request.getHash(), request.getTn());
 
         when(restTemplate.getForObject(url, CharactersResponse.class)).thenReturn(expectedResponse);
 
@@ -83,13 +85,15 @@ class CharacterServiceTest {
     @Test
     void testGetCharacterDetails_ApiCallFails_HandlesException() throws Exception {
         // Arrange
-    	CharactersRequest request = new CharactersRequest.Builder("", "")
+    	CharactersRequest request = new CharactersRequest.Builder("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
                 .orderBy(OrderByEnum.nameAsc) 
                 .limit(10)
                 .offset(0)
                 .build();
 
-        String url = String.format("%s/characters?apikey=%s", marvelApiUrl, request.getApiKey());
+        String url = String.format("%s/characters?apikey=%s&hash=%s&tn=%s", 
+        		marvelApiUrl, request.getApiKey(), request.getHash(), request.getTn());
         when(restTemplate.getForObject(url, CharactersResponse.class)).thenThrow(new RuntimeException("API error"));
 
         // Act
