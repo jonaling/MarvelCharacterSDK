@@ -24,6 +24,7 @@ public class CharactersRequest {
 	private OrderByEnum orderBy;
 	private int limit;
 	private int offset;
+	private Boolean useCache;
 
 	public String getApiKey() {
 		return apiKey;
@@ -101,6 +102,10 @@ public class CharactersRequest {
 	public String getTn() {
 		return tn;
 	}
+	
+	public Boolean getUseCache() {
+		return useCache;
+	}
 
 	// Static Builder class
 	public static class Builder {
@@ -118,6 +123,7 @@ public class CharactersRequest {
 		private OrderByEnum orderBy;
 		private int limit;
 		private int offset;
+		private Boolean useCache;
 
 		// Builder constructor
 		public Builder(String apiKey, String privateKey) {
@@ -125,6 +131,7 @@ public class CharactersRequest {
 			this.privateKey = privateKey;
 			this.tn = String.valueOf(System.currentTimeMillis()); // Generated timestamp
 			this.hash = generateHash();
+			this.useCache = true;
 		}
 
 		public Builder name(String name) {
@@ -176,6 +183,11 @@ public class CharactersRequest {
 			this.offset = offset;
 			return this;
 		}
+		
+		public Builder noCache() {
+			this.useCache = false;
+			return this;
+		}
 
 		public CharactersRequest build() {
 			CharactersRequest request = new CharactersRequest();
@@ -193,6 +205,7 @@ public class CharactersRequest {
 			request.orderBy = this.orderBy;
 			request.limit = this.limit;
 			request.offset = this.offset;
+			request.useCache = this.useCache;
 			return request;
 		}
 

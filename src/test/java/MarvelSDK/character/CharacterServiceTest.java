@@ -16,8 +16,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import MarvelSDK.character.Cache.CharacterCache;
 import MarvelSDK.character.Exceptions.ApiException;
 import MarvelSDK.character.Exceptions.ApiExceptionHandler;
 import MarvelSDK.character.Exceptions.InvalidArgumentException;
@@ -30,6 +35,9 @@ class CharacterServiceTest {
 
 	@Mock
     private RestTemplate restTemplate;
+	
+	@Mock
+	private CharacterCache characterCache;
 
     @InjectMocks
     private CharacterService characterService;
@@ -39,16 +47,21 @@ class CharacterServiceTest {
 
     private CharactersRequest validRequest;
     
-    private String url;
+    private String validUrl;
+    
+    private String validCacheKey;
     
     @BeforeEach
     void setUp() {
+    	
     	validRequest =  new CharactersRequest.Builder("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
     			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
                 .build();
     	
-    	url = String.format("%s/characters?apikey=%s&hash=%s&ts=%s",
+    	validUrl = String.format("%s/characters?apikey=%s&hash=%s&ts=%s",
         		marvelApiUrl, validRequest.getApiKey(), validRequest.getHash(), validRequest.getTn());
+    	
+    	validCacheKey = String.format("%s/characters?apikey=%s", marvelApiUrl, validRequest.getApiKey());
     	
     }
 
@@ -56,28 +69,40 @@ class CharacterServiceTest {
     void testGetCharacterDetails_ValidRequest_Success() {
        
         CharactersResponse expectedResponse = new CharactersResponse();
-        
+        ResponseEntity<CharactersResponse> responseEntity = new ResponseEntity<>(expectedResponse, new HttpHeaders(), HttpStatus.OK);
 
-        when(restTemplate.getForObject(url, CharactersResponse.class)).thenReturn(expectedResponse);
+        when(restTemplate.exchange(eq(validUrl), eq(HttpMethod.GET), isNull(), eq(CharactersResponse.class)))
+        .thenReturn(responseEntity);
 
-        // Act
         CharactersResponse actualResponse = null;
 		try {
 			actualResponse = characterService.getCharacterDetails(validRequest);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-        // Assert
         assertNotNull(actualResponse);
         assertEquals(expectedResponse, actualResponse);
-        verify(restTemplate, times(1)).getForObject(url, CharactersResponse.class);
+        verify(restTemplate, times(1)).exchange(validUrl,HttpMethod.GET, null, CharactersResponse.class);
+    }
+    
+    @Test
+    void testGetCharacterDetails_CachedResponse() throws Exception {
+
+        CharactersResponse cachedResponse = new CharactersResponse();
+        when(characterCache.getEtag(validCacheKey)).thenReturn("etag");
+        when(characterCache.getResponse("etag")).thenReturn(cachedResponse);
+
+        CharactersResponse response = characterService.getCharacterDetails(validRequest);
+
+        assertNotNull(response);
+        assertEquals(cachedResponse, response);
+        verify(restTemplate, never()).exchange(validUrl,HttpMethod.GET, null, CharactersResponse.class);
     }
     
     @Test
     void testGetCharacterDetails_WithOptionalFields() {
-        // Arrange
+
         CharactersRequest request =  new CharactersRequest.Builder("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
     			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
                 .name("Spider-Man")
@@ -86,47 +111,45 @@ class CharacterServiceTest {
         String currUrl = String.format("%s/characters?apikey=%s&hash=%s&ts=%s&name=%s",
         		marvelApiUrl, request.getApiKey(), request.getHash(), request.getTn(), request.getName());
 
-        CharactersResponse mockedResponse = new CharactersResponse();
-        when(restTemplate.getForObject(currUrl, CharactersResponse.class))
-                .thenReturn(mockedResponse);
+        CharactersResponse expectedResponse = new CharactersResponse();
+        ResponseEntity<CharactersResponse> responseEntity = new ResponseEntity<>(expectedResponse, new HttpHeaders(), HttpStatus.OK);
 
-        // Act
-        CharactersResponse response;
+        when(restTemplate.exchange(eq(currUrl), eq(HttpMethod.GET), isNull(), eq(CharactersResponse.class)))
+        .thenReturn(responseEntity);
+
+        CharactersResponse actualResponse = null;
 		try {
-			response = characterService.getCharacterDetails(request);
+			actualResponse= characterService.getCharacterDetails(request);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-        // Assert
-        assertNotNull(mockedResponse);
-        verify(restTemplate, times(1)).getForObject(currUrl, CharactersResponse.class);
+		assertNotNull(actualResponse);
+        assertEquals(expectedResponse, actualResponse);
+        verify(restTemplate, times(1)).exchange(currUrl,HttpMethod.GET, null, CharactersResponse.class);
     }
 
     @Test
     void testGetCharacterDetails_InvalidRequest_ThrowsException() {
-        // Arrange
+
     	CharactersRequest request = new CharactersRequest.Builder("", "")
                 .build();
 
-        // Act & Assert
+
         assertThrows(InvalidArgumentException.class, () -> characterService.getCharacterDetails(request));
         verify(restTemplate, never()).getForObject(anyString(), eq(CharactersResponse.class));
     }
+    
 
     @Test
     void testGetCharacterDetails_ApiException()  {
-        // Arrange
-        when(restTemplate.getForObject(any(String.class), eq(CharactersResponse.class)))
-                .thenThrow(new RuntimeException("API Error"));
+    	
+    	when(restTemplate.exchange(any(String.class), eq(HttpMethod.GET), isNull(), eq(CharactersResponse.class)))
+.thenThrow(new RuntimeException("API Error"));
 
-        // Act
-        
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             characterService.getCharacterDetails(validRequest);
         });
-        //CharactersResponse response = characterService.getCharacterDetails(validRequest);
 
         assertEquals("API Error", exception.getMessage());
     }
