@@ -11,4 +11,8 @@ public enum OrderByEnum {
 	OrderByEnum(String orderByEnum) {
 		this.orderByEnum = orderByEnum;
 	}
+	
+	 public String getOrderByValue() {
+	        return orderByEnum;
+	    }
 }

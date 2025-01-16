@@ -78,15 +78,24 @@ public class CharactersRequest {
 	}
 
 	public String getOrderBy() {
-		return orderBy.name();
+		if(orderBy!= null) {
+			return orderBy.getOrderByValue();
+		}
+		return null;
 	}
 
 	public String getLimit() {
+		if( limit != 0) {
 		return "" + limit;
+		}
+		return null;
 	}
 
 	public String getOffset() {
+		if( offset != 0) {
 		return "" + offset;
+		}
+		return null;
 	}
 
 	public String getTn() {

@@ -12,7 +12,7 @@ import MarvelSDK.character.Model.CharactersResponse;
 public class CharacterService {
 
 	private final RestTemplate restTemplate;
-
+	
 	@Value("${marvel.api.url}")
 	private String marvelApiUrl;
 
@@ -27,7 +27,7 @@ public class CharacterService {
 
 			validator.validate(request);
 
-			String url = String.format("%s/characters?apikey=%s&hash=%s&tn=%s", marvelApiUrl, request.getApiKey(),
+			String url = String.format("%s/characters?apikey=%s&hash=%s&ts=%s", marvelApiUrl, request.getApiKey(),
 					request.getHash(), request.getTn());
 
 			url = addCharactersOptionalFields(url, request);

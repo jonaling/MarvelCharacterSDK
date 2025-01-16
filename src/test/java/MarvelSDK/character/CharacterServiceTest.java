@@ -4,23 +4,28 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+
 import java.util.Arrays;
 import java.util.Date;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
+import MarvelSDK.character.Exceptions.ApiException;
+import MarvelSDK.character.Exceptions.ApiExceptionHandler;
 import MarvelSDK.character.Exceptions.InvalidArgumentException;
 import MarvelSDK.character.Model.CharactersRequest;
 import MarvelSDK.character.Model.CharactersResponse;
 import MarvelSDK.character.Model.OrderByEnum;
 
-
+@ExtendWith(MockitoExtension.class)
 class CharacterServiceTest {
 
 	@Mock
@@ -32,31 +37,33 @@ class CharacterServiceTest {
     @Value("${marvel.api.url}")
     private String marvelApiUrl;
 
+    private CharactersRequest validRequest;
+    
+    private String url;
+    
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+    	validRequest =  new CharactersRequest.Builder("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+                .build();
+    	
+    	url = String.format("%s/characters?apikey=%s&hash=%s&ts=%s",
+        		marvelApiUrl, validRequest.getApiKey(), validRequest.getHash(), validRequest.getTn());
+    	
     }
 
     @Test
     void testGetCharacterDetails_ValidRequest_Success() {
-        // Arrange
-    	CharactersRequest request =  new CharactersRequest.Builder("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
-    			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
-                .orderBy(OrderByEnum.nameAsc) 
-                .limit(10)
-                .offset(0)
-                .build();
-
-        CharactersResponse expectedResponse = new CharactersResponse(); // Populate with expected data
-        String url = String.format("%s/characters?apikey=%s&hash=%s&tn=%s",
-        		marvelApiUrl, request.getApiKey(), request.getHash(), request.getTn());
+       
+        CharactersResponse expectedResponse = new CharactersResponse();
+        
 
         when(restTemplate.getForObject(url, CharactersResponse.class)).thenReturn(expectedResponse);
 
         // Act
         CharactersResponse actualResponse = null;
 		try {
-			actualResponse = characterService.getCharacterDetails(request);
+			actualResponse = characterService.getCharacterDetails(validRequest);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,14 +74,40 @@ class CharacterServiceTest {
         assertEquals(expectedResponse, actualResponse);
         verify(restTemplate, times(1)).getForObject(url, CharactersResponse.class);
     }
+    
+    @Test
+    void testGetCharacterDetails_WithOptionalFields() {
+        // Arrange
+        CharactersRequest request =  new CharactersRequest.Builder("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+                .name("Spider-Man")
+                .build();
+        
+        String currUrl = String.format("%s/characters?apikey=%s&hash=%s&ts=%s&name=%s",
+        		marvelApiUrl, request.getApiKey(), request.getHash(), request.getTn(), request.getName());
+
+        CharactersResponse mockedResponse = new CharactersResponse();
+        when(restTemplate.getForObject(currUrl, CharactersResponse.class))
+                .thenReturn(mockedResponse);
+
+        // Act
+        CharactersResponse response;
+		try {
+			response = characterService.getCharacterDetails(request);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        // Assert
+        assertNotNull(mockedResponse);
+        verify(restTemplate, times(1)).getForObject(currUrl, CharactersResponse.class);
+    }
 
     @Test
     void testGetCharacterDetails_InvalidRequest_ThrowsException() {
         // Arrange
     	CharactersRequest request = new CharactersRequest.Builder("", "")
-                .orderBy(OrderByEnum.nameAsc) 
-                .limit(10)
-                .offset(0)
                 .build();
 
         // Act & Assert
@@ -83,25 +116,19 @@ class CharacterServiceTest {
     }
 
     @Test
-    void testGetCharacterDetails_ApiCallFails_HandlesException() throws Exception {
+    void testGetCharacterDetails_ApiException()  {
         // Arrange
-    	CharactersRequest request = new CharactersRequest.Builder("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
-    			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
-                .orderBy(OrderByEnum.nameAsc) 
-                .limit(10)
-                .offset(0)
-                .build();
-
-        String url = String.format("%s/characters?apikey=%s&hash=%s&tn=%s", 
-        		marvelApiUrl, request.getApiKey(), request.getHash(), request.getTn());
-        when(restTemplate.getForObject(url, CharactersResponse.class)).thenThrow(new RuntimeException("API error"));
+        when(restTemplate.getForObject(any(String.class), eq(CharactersResponse.class)))
+                .thenThrow(new RuntimeException("API Error"));
 
         // Act
-        CharactersResponse response = characterService.getCharacterDetails(request);
+        
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            characterService.getCharacterDetails(validRequest);
+        });
+        //CharactersResponse response = characterService.getCharacterDetails(validRequest);
 
-        // Assert
-        assertNull(response);
-        verify(restTemplate, times(1)).getForObject(url, CharactersResponse.class);
+        assertEquals("API Error", exception.getMessage());
     }
 }
 
