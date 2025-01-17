@@ -14,21 +14,21 @@ The jar file will be created in the build/generated folder.
 
 To use the SDK, one must first build the CharacterRequest body as such:
 
-'''java
+```java
 CharactersRequest request = new CharactersRequest.Builder("Your public Key",
         		"Your private key")
                 .build();
-'''
+```
 Where the first two fields are public and private key respectively which are provided by having a marvel developer account at https://developer.marvel.com/ .
 
 Then after the request is built, you must call the service method :
 
-'''java
+```java
 @Autowired
 CharacterService characterService;
 
  charactersService.getCharacterDetails( Character Request);
- '''
+```
 
 There are a number of optional field:
 
@@ -47,7 +47,8 @@ There are a number of optional field:
 |.useCache| Boolean | False | Make use of Caffine InHeap memory cache. True by default.|
 
 eg.
-'''java
+
+```java
 ArrayList<String> comicIds = new ArrayList<String>();
     	comicIds.add("76353");
     	comicIds.add("76351");
@@ -65,12 +66,13 @@ CharactersResponse characterDetails;
 			e.printStackTrace();
 		}
         
-'''
+```
 
 ##Response
 
 The response is in the following object formats which contain getters and toString():
-'''java
+
+```java
 public class CharactersResponse {
 	public int code; //status code
 	public String status; //status message
@@ -127,11 +129,11 @@ public class Url {
 	public String url; //A full URL (including scheme, domain, and path)
 }
 
-'''
+```
 
 Example of rull call is as follows:
 
-'''java
+```java
 CharactersRequest request = new CharactersRequest.Builder("publicKey",
         		"privateKey")
         		.modifiedSince(LocalDate.of(2020, 1, 1))
@@ -146,10 +148,12 @@ CharactersRequest request = new CharactersRequest.Builder("publicKey",
 			System.out.println(characterDetails.getData().getResults().get(0).getName());
 			System.out.println(characterDetails.getData().getResults().get(0).toString());
 
-'''
+```
 
 Will print out:
-'''java'''
+
+```java
 Wave (Wave)
 Result(id=1017853, name=Wave (Wave), description=, modified=Sat Aug 28 05:43:56 HKT 2021, thumbnail=Thumbnail(path=http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available, extension=jpg), resourceURI=http://gateway.marvel.com/v1/public/characters/1017853, comics=Comics(available=16, collectionURI=http://gateway.marvel.com/v1/public/characters/1017853/comics, items=[Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76349, name=Aero (2019) #1, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76350, name=Aero (2019) #2, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76351, name=Aero (2019) #3, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76352, name=Aero (2019) #4, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76353, name=Aero (2019) #5, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76354, name=Aero (2019) #6, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/77001, name=Agents of Atlas (2019) #1, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/77003, name=Agents of Atlas (2019) #3, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/77004, name=Agents of Atlas (2019) #4, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/77005, name=Agents of Atlas (2019) #5, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83989, name=Atlantis Attacks (2020) #1, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83993, name=Atlantis Attacks (2020) #2, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83994, name=Atlantis Attacks (2020) #3, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83995, name=Atlantis Attacks (2020) #4, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83996, name=Atlantis Attacks (2020) #5, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/106112, name=Marvel's Voices Infinity Comic (2022) #50, type=null)], returned=16), series=Series(available=4, collectionURI=http://gateway.marvel.com/v1/public/characters/1017853/series, items=[Item(resourceURI=http://gateway.marvel.com/v1/public/series/27392, name=Aero (2019 - 2020), type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/series/27624, name=Agents of Atlas (2019), type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/series/29600, name=Atlantis Attacks (2020), type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/series/34353, name=Marvel's Voices Infinity Comic (2022 - 2023), type=null)], returned=4), stories=MarvelSDK.character.Model.Stories@4ae280da, events=Events(available=0, collectionURI=http://gateway.marvel.com/v1/public/characters/1017853/events, items=[], returned=0), urls=[Url(type=detail, url=http://marvel.com/comics/characters/1017853/wave_wave?utm_campaign=apiRef&utm_source=b05a5801fc5def0dfbfc858bf84b23bd), Url(type=comiclink, url=http://marvel.com/comics/characters/1017853/wave_wave?utm_campaign=apiRef&utm_source=b05a5801fc5def0dfbfc858bf84b23bd)])
+```
 
