@@ -45,8 +45,11 @@ public class CharactersRequest {
 	}
 
 	public String getModifiedSince() {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
-		return modifiedSince.format(formatter);
+		if (modifiedSince != null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
+			return modifiedSince.format(formatter);
+		}
+		return null;
 	}
 
 	public String getComicsIds() {
@@ -82,22 +85,22 @@ public class CharactersRequest {
 	}
 
 	public String getOrderBy() {
-		if(orderBy!= null) {
+		if (orderBy != null) {
 			return orderBy.getOrderByValue();
 		}
 		return null;
 	}
 
 	public String getLimit() {
-		if( limit != 0) {
-		return "" + limit;
+		if (limit != 0) {
+			return "" + limit;
 		}
 		return null;
 	}
 
 	public String getOffset() {
-		if( offset != 0) {
-		return "" + offset;
+		if (offset != 0) {
+			return "" + offset;
 		}
 		return null;
 	}
@@ -105,7 +108,7 @@ public class CharactersRequest {
 	public String getTn() {
 		return tn;
 	}
-	
+
 	public Boolean getUseCache() {
 		return useCache;
 	}
@@ -186,7 +189,7 @@ public class CharactersRequest {
 			this.offset = offset;
 			return this;
 		}
-		
+
 		public Builder noCache() {
 			this.useCache = false;
 			return this;

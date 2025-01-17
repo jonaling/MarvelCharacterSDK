@@ -40,4 +40,9 @@ public class CharacterCache {
     public void putResponse(String etag, CharactersResponse response) {
         responseCache.put(etag, response);
     }
+    
+    public void invalidateCaches() {
+    	etagCache.invalidateAll();
+    	responseCache.invalidateAll();
+    }
 }

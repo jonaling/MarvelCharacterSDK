@@ -2,6 +2,43 @@
 Marvel Character SDK created to obtain a list of characters and cache frequent results. Makes use of Springboot, Caffine and Loombok to create a lightweight Marvel Character SDK be imported for use.
 [Marvel API](https://developer.marvel.com/) is used with the baseline being the the [/v1/public/characters](https://developer.marvel.com/docs) endpoint.
 
+## Dependencies
+
+In addition to the jar file created from this project, four additional dependencies are required to run the project:
+
+```gradle
+implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+implementation 'org.springframework.boot:spring-boot-starter-cache:3.4.1'
+implementation 'org.springframework.boot:spring-boot-starter-web'
+compileOnly 'org.projectlombok:lombok'
+annotationProcessor 'org.projectlombok:lombok'
+
+```
+
+```maven
+
+		<dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
+    
+    <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        </dependency>
+        
+         <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        </dependency>
+
+```
+
 ## Installation
 To create a jar file, simply have [gradle](https://gradle.org/install/) installed locally, go to the directory and run:
 ```bash
@@ -9,6 +46,13 @@ To create a jar file, simply have [gradle](https://gradle.org/install/) installe
 ```
 
 The jar file will be created in the build/generated folder.
+
+Ensure that the application.properties has the property:
+
+```
+marvel.api.url=https://gateway.marvel.com/v1/public
+```
+
 
 ## Usage
 
@@ -27,7 +71,7 @@ Then after the request is built, you must call the service method :
 @Autowired
 CharacterService characterService;
 
- charactersService.getCharacterDetails( Character Request);
+ charactersService.getCharacterDetails(Character Request);
 ```
 
 There are a number of optional field:
@@ -131,7 +175,7 @@ public class Url {
 
 ```
 
-Example of rull call is as follows:
+Example of a call is as follows:
 
 ```java
 CharactersRequest request = new CharactersRequest.Builder("publicKey",
@@ -150,10 +194,20 @@ CharactersRequest request = new CharactersRequest.Builder("publicKey",
 
 ```
 
-Will print out:
+This will print out:
 
 ```java
 Wave (Wave)
 Result(id=1017853, name=Wave (Wave), description=, modified=Sat Aug 28 05:43:56 HKT 2021, thumbnail=Thumbnail(path=http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available, extension=jpg), resourceURI=http://gateway.marvel.com/v1/public/characters/1017853, comics=Comics(available=16, collectionURI=http://gateway.marvel.com/v1/public/characters/1017853/comics, items=[Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76349, name=Aero (2019) #1, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76350, name=Aero (2019) #2, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76351, name=Aero (2019) #3, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76352, name=Aero (2019) #4, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76353, name=Aero (2019) #5, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/76354, name=Aero (2019) #6, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/77001, name=Agents of Atlas (2019) #1, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/77003, name=Agents of Atlas (2019) #3, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/77004, name=Agents of Atlas (2019) #4, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/77005, name=Agents of Atlas (2019) #5, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83989, name=Atlantis Attacks (2020) #1, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83993, name=Atlantis Attacks (2020) #2, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83994, name=Atlantis Attacks (2020) #3, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83995, name=Atlantis Attacks (2020) #4, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/83996, name=Atlantis Attacks (2020) #5, type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/comics/106112, name=Marvel's Voices Infinity Comic (2022) #50, type=null)], returned=16), series=Series(available=4, collectionURI=http://gateway.marvel.com/v1/public/characters/1017853/series, items=[Item(resourceURI=http://gateway.marvel.com/v1/public/series/27392, name=Aero (2019 - 2020), type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/series/27624, name=Agents of Atlas (2019), type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/series/29600, name=Atlantis Attacks (2020), type=null), Item(resourceURI=http://gateway.marvel.com/v1/public/series/34353, name=Marvel's Voices Infinity Comic (2022 - 2023), type=null)], returned=4), stories=MarvelSDK.character.Model.Stories@4ae280da, events=Events(available=0, collectionURI=http://gateway.marvel.com/v1/public/characters/1017853/events, items=[], returned=0), urls=[Url(type=detail, url=http://marvel.com/comics/characters/1017853/wave_wave?utm_campaign=apiRef&utm_source=b05a5801fc5def0dfbfc858bf84b23bd), Url(type=comiclink, url=http://marvel.com/comics/characters/1017853/wave_wave?utm_campaign=apiRef&utm_source=b05a5801fc5def0dfbfc858bf84b23bd)])
 ```
+To get the time taken of the previous call:
 
+```java
+charactersService.getLastSessiontime();
+```
+
+To invalidate cache, call :
+
+```java
+charactersService.invalidateCaches()
+```

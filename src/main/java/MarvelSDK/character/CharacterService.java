@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,6 +19,7 @@ public class CharacterService {
 
 	private final RestTemplate restTemplate;
 	private final CharacterCache characterCache;
+	private final StopWatch stopWatch = new StopWatch();
 
 	@Value("${marvel.api.url}")
 	private String marvelApiUrl;
@@ -42,7 +44,8 @@ public class CharacterService {
 					+ additionalFields;
 			
 			//System.out.println("cacheKey: "+ cacheKey);
-
+			
+			stopWatch.start(); 
 			// Check for a cached ETag
 			String cachedEtag = characterCache.getEtag(cacheKey);
 
@@ -78,6 +81,8 @@ public class CharacterService {
 		} catch (Exception e) {
 			ApiExceptionHandler.handleException(e);
 			return null;
+		}finally {
+			stopWatch.stop();
 		}
 	}
 
@@ -116,5 +121,19 @@ public class CharacterService {
 		}
 		return url;
 	}
+	
+	//Invalidation method for manual testing
+	public void invalidateCaches() {
+		characterCache.invalidateCaches();
+	}
+	
+	public void getLastSessiontime() {
+		if(stopWatch.getTaskCount()> 0) {
+			System.out.println("Last API call took :" + stopWatch.lastTaskInfo().getTimeMillis() + "ms");
+		} else {
+			System.out.println("No priorSession");
+		}
+	}
+	
 
 }
