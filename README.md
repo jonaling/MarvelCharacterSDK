@@ -1,9 +1,9 @@
 # MarvelCharacterSDK
 Marvel Character SDK created to obtain a list of characters and cache frequent results. Makes use of Springboot, Caffine and Loombok to create a lightweight Marvel Character SDK be imported for use.
-[Marvel API]{https://developer.marvel.com/} is used with the baseline being the the [/v1/public/characters]{https://developer.marvel.com/docs} endpoint.
+[Marvel API](https://developer.marvel.com/) is used with the baseline being the the [/v1/public/characters](https://developer.marvel.com/docs) endpoint.
 
 ##Installation
-To create a jar file, simply have [gradle]{https://gradle.org/install/} installed locally, go to the directory and run:
+To create a jar file, simply have [gradle](https://gradle.org/install/) installed locally, go to the directory and run:
 ```bash
 ./gradlew clean build
 ```
