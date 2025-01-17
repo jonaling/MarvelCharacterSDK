@@ -1,7 +1,6 @@
 package MarvelSDK.character;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,7 @@ public class CharacterService {
 
 	private final RestTemplate restTemplate;
 	private final CharacterCache characterCache;
-	
+
 	@Value("${marvel.api.url}")
 	private String marvelApiUrl;
 
@@ -33,51 +32,57 @@ public class CharacterService {
 	public CharactersResponse getCharacterDetails(CharactersRequest request) throws Exception {
 		try {
 			validator.validate(request);
-			
+
 			String additionalFields = addCharactersOptionalFields(request);
 
 			String url = String.format("%s/characters?apikey=%s&hash=%s&ts=%s", marvelApiUrl, request.getApiKey(),
 					request.getHash(), request.getTn()) + additionalFields;
-			
-			String cacheKey = String.format("%s/characters?apikey=%s", marvelApiUrl, request.getApiKey()) + additionalFields;
-			
-			 // Check for a cached ETag
-            String cachedEtag = characterCache.getEtag(cacheKey);
-            
-            if (cachedEtag != null && request.getUseCache()) {
-                CharactersResponse cachedResponse =characterCache.getResponse(cachedEtag);
-                if( cachedResponse != null) {
-                	return cachedResponse;
-                }
-            }
-            // Perform the GET request
-            ResponseEntity<CharactersResponse> response = restTemplate.exchange(url, HttpMethod.GET, null, CharactersResponse.class);
 
-            // Check for the response status
-            if (response.getStatusCode().is2xxSuccessful()) {
-                // Update ETag cache
-                String newEtag = response.getBody().getEtag();
-             // Cache the response
-                if (newEtag != null) {
-                    characterCache.putEtag(cacheKey, newEtag);
-                    characterCache.putResponse(newEtag, response.getBody());
-                }
-                return response.getBody();
-            } else {
-            	if(response.getBody() instanceof ErrorResponse) {
-            		ErrorResponse errorResponse = (ErrorResponse) response.getBody();
-            		throw new ApiException(errorResponse.getBody().getTitle(),response.getStatusCode().value());
-            	}
-            	return response.getBody();
-            }
-        } catch (Exception e) {
-            ApiExceptionHandler.handleException(e);
-            return null;
-        }
+			String cacheKey = String.format("%s/characters?apikey=%s", marvelApiUrl, request.getApiKey())
+					+ additionalFields;
+			
+			//System.out.println("cacheKey: "+ cacheKey);
+
+			// Check for a cached ETag
+			String cachedEtag = characterCache.getEtag(cacheKey);
+
+			if (cachedEtag != null && request.getUseCache()) {
+				CharactersResponse cachedResponse = characterCache.getResponse(cachedEtag);
+				if (cachedResponse != null) {
+					return cachedResponse;
+				}
+			}
+			// Perform the GET request
+			ResponseEntity<CharactersResponse> response = restTemplate.exchange(url, HttpMethod.GET, null,
+					CharactersResponse.class);
+
+			// Check for the response status
+			if (response.getStatusCode().is2xxSuccessful()) {
+				// Update ETag cache
+				if (request.getUseCache()) {
+					String newEtag = response.getBody().getEtag();
+					// Cache the response
+					if (newEtag != null) {
+						characterCache.putEtag(cacheKey, newEtag);
+						characterCache.putResponse(newEtag, response.getBody());
+					}
+				}
+				return response.getBody();
+			} else {
+				if (response.getBody() instanceof ErrorResponse) {
+					ErrorResponse errorResponse = (ErrorResponse) response.getBody();
+					throw new ApiException(errorResponse.getBody().getTitle(), response.getStatusCode().value());
+				}
+				return response.getBody();
+			}
+		} catch (Exception e) {
+			ApiExceptionHandler.handleException(e);
+			return null;
+		}
 	}
 
-	//Filter By optional parameters
-	private String addCharactersOptionalFields( CharactersRequest request) {
+	// Filter By optional parameters
+	private String addCharactersOptionalFields(CharactersRequest request) {
 		String url = "";
 		if (request.getName() != null) {
 			url += String.format("&name=%s", request.getName());

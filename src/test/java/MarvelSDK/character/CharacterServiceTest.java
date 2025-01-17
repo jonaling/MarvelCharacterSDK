@@ -23,12 +23,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import MarvelSDK.character.Cache.CharacterCache;
-import MarvelSDK.character.Exceptions.ApiException;
-import MarvelSDK.character.Exceptions.ApiExceptionHandler;
+
 import MarvelSDK.character.Exceptions.InvalidArgumentException;
 import MarvelSDK.character.Model.CharactersRequest;
 import MarvelSDK.character.Model.CharactersResponse;
-import MarvelSDK.character.Model.OrderByEnum;
+
 
 @ExtendWith(MockitoExtension.class)
 class CharacterServiceTest {

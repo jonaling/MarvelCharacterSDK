@@ -8,11 +8,11 @@ import lombok.ToString;
 @Setter
 @ToString
 public class CharactersResponse {
-	public int code;
-	public String status;
-	public String copyright;
-	public String attributionText;
-	public String attributionHTML;
-	public String etag;
+	public int code; //status code
+	public String status; //status message
+	public String copyright; // marvel copyright
+	public String attributionText; //copyright attribution text
+	public String attributionHTML; //copyright attribution html
+	public String etag; // etag used for versioning of requests
 	public Data data;
 }

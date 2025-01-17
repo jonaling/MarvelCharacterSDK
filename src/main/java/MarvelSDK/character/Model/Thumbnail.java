@@ -8,6 +8,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Thumbnail {
-	public String path;
-	public String extension;
+	public String path; //A URL path to the thumbnail.
+	public String extension; //A picture format
 }

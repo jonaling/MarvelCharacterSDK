@@ -8,6 +8,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Url {
-	public String type;
-	public String url;
+	public String type; //A text identifier for the URL.
+	public String url; //A full URL (including scheme, domain, and path)
 }

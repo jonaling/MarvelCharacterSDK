@@ -12,6 +12,6 @@ import lombok.ToString;
 public class Events {
 	public int available;
     public String collectionURI;
-    public List<Object> items;
+    public List<Item> items;
     public int returned;
 }

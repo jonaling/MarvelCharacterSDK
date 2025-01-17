@@ -2,7 +2,9 @@ package MarvelSDK.character.Model;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +18,7 @@ public class CharactersRequest {
 	private String tn;
 	private String name;
 	private String nameStartsWith;
-	private Date modifiedSince;
+	private LocalDate modifiedSince;
 	private List<String> comicsIds;
 	private List<String> seriesIds;
 	private List<String> eventIds;
@@ -42,8 +44,9 @@ public class CharactersRequest {
 		return nameStartsWith;
 	}
 
-	public Date getModifiedSince() {
-		return modifiedSince;
+	public String getModifiedSince() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
+		return modifiedSince.format(formatter);
 	}
 
 	public String getComicsIds() {
@@ -115,7 +118,7 @@ public class CharactersRequest {
 		private String hash;
 		private String name;
 		private String nameStartsWith;
-		private Date modifiedSince;
+		private LocalDate modifiedSince;
 		private List<String> comicsIds;
 		private List<String> seriesIds;
 		private List<String> eventIds;
@@ -144,7 +147,7 @@ public class CharactersRequest {
 			return this;
 		}
 
-		public Builder modifiedSince(Date modifiedSince) {
+		public Builder modifiedSince(LocalDate modifiedSince) {
 			this.modifiedSince = modifiedSince;
 			return this;
 		}
